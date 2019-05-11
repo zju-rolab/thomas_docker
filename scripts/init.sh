@@ -1,17 +1,18 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # Create user
-if [ -n "${DOCKER_USER}" ] && [ -n "${DOCKER_USER_ID}" ] && [ -n "${DOCKER_GRP}" ] && [ -n "${DOCKER_GRP_ID}" ]; then
+# if [ -n "${DOCKER_USER}" ] && [ -n "${DOCKER_USER_ID}" ] && [ -n "${DOCKER_GRP}" ] && [ -n "${DOCKER_GRP_ID}" ]; then
+if [ -n "${DOCKER_USER}" ] && [ -n "${DOCKER_GRP}" ]; then
 
   # Add group & user
-  addgroup --gid ${DOCKER_GRP_ID} ${DOCKER_GRP}
-  adduser --disabled-password --gecos '' --uid ${DOCKER_USER_ID} ${DOCKER_USER} --ingroup ${DOCKER_GRP} --home /home/${DOCKER_USER}
+  addgroup ${DOCKER_GRP}
+  adduser --disabled-password --gecos '' ${DOCKER_USER} --ingroup ${DOCKER_GRP} --home /home/${DOCKER_USER}
   usermod -aG sudo "$DOCKER_USER"
   echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
   # Add user to pointgrey group
   if [ -n "${PG_GRP}" ]; then
-    addgroup --gid ${PG_GRP_ID} ${PG_GRP}
+    addgroup ${PG_GRP}
     usermod -aG ${PG_GRP} "${DOCKER_USER}"
   fi
 
@@ -19,6 +20,8 @@ if [ -n "${DOCKER_USER}" ] && [ -n "${DOCKER_USER_ID}" ] && [ -n "${DOCKER_GRP}"
   sed "s/root/home\/${DOCKER_USER}/" ~/.zshrc > /home/${DOCKER_USER}/.zshrc
   cp -r ~/.oh-my-zsh /home/${DOCKER_USER}
   cp ~/.bashrc /home/${DOCKER_USER}
+  printf "\nexport USER=tangli\n" >> /home/${DOCKER_USER}/.zshrc
+  printf "\nexport USER=tangli\n" >> /home/${DOCKER_USER}/.bashrc
 
   # ROS related
   mkdir /home/${DOCKER_USER}/.ros

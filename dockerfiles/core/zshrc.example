@@ -92,3 +92,4 @@ if [ -f ~/catkin_ws/install/setup.sh ]; then
 elif [ -f ~/catkin_ws/devel/setup.sh ]; then
   source ~/catkin_ws/devel/setup.sh
 fi
+

@@ -6,14 +6,11 @@ IMAGE_NAME=thomas:ros-kinetic-thomas-core
 BASE_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
 # User imformation
-USER_ID=$(id -u)
 GRP=$(id -g -n)
-GRP_ID=$(id -g)
-USER_CONF="-e DOCKER_USER=$USER -e DOCKER_USER_ID=$USER_ID -e DOCKER_GRP=$GRP -e DOCKER_GRP_ID=$GRP_ID"
+USER_CONF="-e DOCKER_USER=$USER -e DOCKER_GRP=$GRP"
 # Append group name & id for pointgrey if possible
 PG_GRP='flirimaging'
 if [ -n $(grep ${PG_GRP} /etc/group) ]; then
-  USER_CONF="${USER_CONF} -e PG_GRP_ID=`grep ${PG_GRP} /etc/group | cut -d':' -f 3`"
   USER_CONF="${USER_CONF} -e PG_GRP=${PG_GRP}"
 fi
 
