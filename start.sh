@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 CONTAINER_NAME=thomas_os
-IMAGE_NAME=thomas:ros-kinetic-thomas-core
+IMAGE_NAME=thomas:ros-kinetic-thomas-dev
 
 BASE_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
