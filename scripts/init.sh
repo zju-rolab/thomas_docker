@@ -25,10 +25,8 @@ if [ -n "${DOCKER_USER}" ] && [ -n "${DOCKER_USER_ID}" ] && [ -n "${DOCKER_GRP}"
   cp -r ~/.ros/rosdep /home/${DOCKER_USER}/.ros
 
   # VNC related
-  if [ -f /opt/TurboVNC/bin/vncpasswd ]; then
-    mkdir /home/${DOCKER_USER}/.vnc
-    echo '12345678' | /opt/TurboVNC/bin/vncpasswd -f > /home/${DOCKER_USER}/.vnc/passwd
-    chmod 0600 /home/${DOCKER_USER}/.vnc/passwd
+  if [ -d /root/.vnc ]; then
+    cp -r /root/.vnc /home/${DOCKER_USER}/
   fi
 
   # OS specific configuration

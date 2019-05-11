@@ -1,10 +1,10 @@
 ARG ROS_DISTRO=kinetic
-FROM osrf/ros:$ROS_DISTRO-desktop-full
+FROM osrf/ros:${ROS_DISTRO}-desktop-full
 
 # Update sources
 COPY sources.list.ustc /etc/apt/sources.list
 COPY ros-latest.list.ustc /etc/apt/sources.list.d/ros-latest.list
-RUN apt-get update
+RUN apt-get  update
 
 # Install ros packages
 RUN apt-get install -y \
@@ -35,7 +35,8 @@ RUN apt-get install -y \
     libgtkmm-2.4-dev \
     libglademm-2.4-dev \
     libgtkglextmm-x11-1.2-dev \
-    libusb-1.0-0
+    libusb-1.0-0 \
+    terminator
 
 # on-my-zsh
 RUN apt-get install -y zsh && \
@@ -49,23 +50,47 @@ RUN apt-get install -y \
     usbutils \
     gdb \
     qtcreator \
-    sudo
+    sudo \
+    wget
+
+# Create tmp workspace
+RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
+    mkdir -p /tmp/thomas_ws/src && \
+    cd /tmp/thomas_ws/src && \
+    catkin_init_workspace . && \
+    cd /tmp/thomas_ws && \
+    catkin_make
+ 
+# Drivers
+ARG SPINNAKER_SDK_FILE=spinnaker-1.21.0.61-amd64-Ubuntu16.04-pkg.tar.gz
+ARG FLYCAPTURE_SDK_FILE=flycapture2-2.13.3.31-amd64-pkg_xenial.tgz
+COPY download_from_box.py /tmp
+RUN cd /tmp && \
+    apt-get install -y python-pip && \
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple "cryptography>2.6" "pyOpenSSL>=16.2" "boxsdk[jwt]" && \
+    /usr/bin/env python download_from_box.py https://flir.app.boxcn.net/v/SpinnakerSDK spinnaker-1.21.0.61-amd64-Ubuntu16.04-pkg.tar.gz /tmp && \
+    /usr/bin/env python download_from_box.py https://flir.app.boxcn.net/v/Flycapture2SDK flycapture2-2.13.3.31-amd64-pkg_xenial.tgz /tmp && \
+    rm -rf /usr/local/lib/python2.7/dist-packages/* && \
+    rm -rf /usr/local/lib/python2.7/site-packages/* && \
+    apt-get remove -y --auto-remove python-pip
+# COPY ${SPINNAKER_SDK_FILE} /tmp
+# COPY ${FLYCAPTURE_SDK_FILE} /tmp
+RUN cd /tmp && \
+    tar -xzf ${SPINNAKER_SDK_FILE}
+RUN cd /tmp && \
+    tar -xzf ${FLYCAPTURE_SDK_FILE}
+RUN mkdir -p /etc/udev/rules.d && \
+    cd /tmp/spinnaker* && \
+    echo "y\ny\nroot\ny\ny\nn\ny" | ./install_spinnaker.sh && \
+    cd /tmp/flycapture* && \
+    echo "y\ny\nroot\ny\ny\nn\ny" | ./install_flycapture.sh 
+RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
+    cd /tmp/thomas_ws/src && \
+    git clone --recursive https://github.com/ThomasRobot/thomas_sensor_platform.git
 
 # 3rd party libraries
-COPY flycapture2-2.12.3.31-amd64-pkg.tgz /tmp
-RUN tar -xzvf /tmp/flycapture2*.tgz -C /tmp && \
-    cd /tmp/flycapture2* && \
-    dpkg -i libptgreyvideoencoder-2* && \
-    dpkg -i libflycapture-2* && \
-    dpkg -i libflycapturegui-2* && \
-    dpkg -i libflycapture-c-2* && \
-    dpkg -i libflycapturegui-c-2* && \
-    dpkg -i libmultisync-2* && \
-    dpkg -i libmultisync-c-2* && \
-    dpkg -i flycap-2* && \
-    dpkg -i flycapture-doc-2* && \
-    dpkg -i updatorgui* &&\
-    cd /tmp && \
+COPY ethzasl_icp_mapping.patch /tmp/ethzasl_icp_mapping.patch
+RUN cd /tmp && \
     git clone http://github.com/ethz-asl/libnabo.git && \
     cd libnabo && \
     git checkout a59cd958b && \
@@ -100,22 +125,22 @@ RUN tar -xzvf /tmp/flycapture2*.tgz -C /tmp && \
     cd build && \
     cmake .. && \
     make -j && \
-    make install
-
-# Create thomas workspace
-COPY ethzasl_icp_mapping.patch /tmp/ethzasl_icp_mapping.patch
-RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
-    mkdir -p /tmp/thomas_ws/src && \
+    make install && \
     cd /tmp/thomas_ws/src && \
-    catkin_init_workspace . && \
     git clone -b indigo_devel --single-branch http://github.com/ethz-asl/ethzasl_icp_mapping.git && \
-    git clone --recursive https://github.com/ThomasRobot/thomas_sensor_platform.git && \
     cd ethzasl_icp_mapping && \
-    git apply /tmp/ethzasl_icp_mapping.patch && \
+    git apply /tmp/ethzasl_icp_mapping.patch
+
+# Build and install thomas workspace
+RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     cd /tmp/thomas_ws && \
     catkin_make && \
     catkin_make -DCMAKE_INSTALL_PREFIX=/opt/thomas install && \
     ln -s /opt/thomas/include/libpointmatcher_ros /opt/thomas/include/pointmatcher_ros
+
+# VNC
+COPY vnc /root/.vnc
+RUN apt-get install -y lxde-core tightvncserver
 
 # Clean
 RUN rm -rf /var/lib/apt/lists/* && \

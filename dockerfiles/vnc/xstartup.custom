@@ -1,5 +1,0 @@
-#!/bin/sh
-DESKTOP_SESSION=LXDE
-export DESKTOP_SESSION
-startlxde
-vncserver-virtual -kill $DISPLAY

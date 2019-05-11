@@ -2,7 +2,7 @@
 
 CONTAINER_NAME=thomas_os
 
-xhost + 127.0.0.1 > /dev/null
+xhost +local:root 1>/dev/null 2>&1
 
 wait_cnt=5
 while [ $wait_cnt -gt 0 ]; do
@@ -17,4 +17,4 @@ done
 
 docker exec -it -u ${USER} ${CONTAINER_NAME} /bin/zsh -c "export COLUMNS=`tput cols`; export LINES=`tput lines`; exec zsh"
 
-xhost - 127.0.0.1 > /dev/null
+xhost -local:root 1>/dev/null 2>&1

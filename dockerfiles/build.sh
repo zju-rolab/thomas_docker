@@ -6,10 +6,15 @@ BASE_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
 function do_build() {
   docker build ${BUILD_ARGS} -t thomas:ros-${ROS_DISTRO}-thomas-$1 --build-arg ROS_DISTRO=${ROS_DISTRO} $2
+  return $?
 }
 
 function build_with_nv() {
   do_build $1 $1
+  if [ $? -ne 0 ]; then
+    echo "Fail to build. Do not build nv docker"
+    return
+  fi
   mkdir /tmp/$1-nv
   echo "
   FROM thomas:ros-${ROS_DISTRO}-thomas-$1
@@ -27,11 +32,9 @@ if [ $# -eq 0 ]; then
   image=$(echo ${image} | rev | cut -d'/' -f2 | rev)
   echo $image
     if [ -f "${BASE_DIR}/${image}/Dockerfile" ]; then
-      # docker build ${BUILD_ARGS} -t thomas:${image} ${image}
     build_with_nv ${image}
     fi
   done
 else
-  # docker build ${BUILD_ARGS} -t thomas:ros-${ROS_DISTRO}-thomas-$1 --build-arg ROS_DISTRO=${ROS_DISTRO} $1
   build_with_nv $1
 fi
