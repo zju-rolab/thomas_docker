@@ -1,8 +1,6 @@
 ARG ROS_DISTRO=kinetic
 FROM osrf/ros:${ROS_DISTRO}-desktop-full
 
-ARG THOMAS_WS=/root/thomas_ws
-
 # Choose Ubuntu mirror
 ARG UBUNTU_SOURCES_LIST=sources.list.ustc
 # ARG UBUNTU_SOURCES_LIST=sources.list.tsinghua
@@ -16,8 +14,8 @@ ARG ROS_MIRROR=http://mirrors.ustc.edu.cn/ros/ubuntu
 COPY ${UBUNTU_SOURCES_LIST} /etc/apt/sources.list
 RUN echo "deb "${ROS_MIRROR}" $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list && apt-get update
 
-# Install ros packages
-# RUN apt-get install -y \
+# Prepare /opt/thomas for workspace installation
+RUN mkdir /opt/thomas
 
 # Install depends
 RUN apt-get install -y \
@@ -50,12 +48,6 @@ RUN apt-get install -y zsh && \
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 COPY zshrc.example /root/.zshrc
 
-# Create tmp workspace
-RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
-    mkdir -p ${THOMAS_WS}/src && \
-    cd ${THOMAS_WS}/src && \
-    catkin_init_workspace .
- 
 # Drivers
 ARG SPINNAKER_SDK_FILE=spinnaker-1.21.0.61-amd64-Ubuntu16.04-pkg.tar.gz
 ARG FLYCAPTURE_SDK_FILE=flycapture2-2.13.3.31-amd64-pkg_xenial.tgz
@@ -77,14 +69,16 @@ RUN cd /tmp && \
     echo "y\ny\nroot\ny\ny\nn\ny" | ./install_spinnaker.sh && \
     cd /tmp/flycapture* && \
     echo "y\ny\nroot\ny\ny\nn\ny" | ./install_flycapture.sh && \
-    cd ${THOMAS_WS}/src && \
-    git clone --recursive https://github.com/ThomasRobot/thomas_sensor_platform.git
-
-# Build and install thomas workspace
-RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
-    cd ${THOMAS_WS} && \
+    rm -rf /tmp/spinnaker* && rm -rf /tmp/flycapture* && \
+    . /opt/ros/${ROS_DISTRO}/setup.sh && \
+    mkdir -p /tmp/thomas_drivers_ws/src && \
+    cd /tmp/thomas_drivers_ws/src && \
+    catkin_init_workspace && \
+    git clone --recursive https://github.com/ThomasRobot/thomas_sensor_platform.git && \
+    cd /tmp/thomas_drivers_ws && \
     catkin_make && \
-    catkin_make -DCMAKE_INSTALL_PREFIX=/opt/thomas install
+    catkin_make -DCMAKE_INSTALL_PREFIX=/opt/thomas/thomas_drivers install && \
+    rm -rf /tmp/thomas_drivers_ws
 
 # VNC
 COPY vnc /root/.vnc
@@ -92,12 +86,10 @@ RUN apt-get install -y lxde-core tightvncserver
 
 # Clean
 RUN rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* && \
-    rm -rf ~/.cmake && \
-    rm -rf ${THOMAS_WS}/build && rm -rf ${THOMAS_WS}/devel && \
-    rm /ros_entrypoint.sh
+    rm -rf ~/.cmake
 
 # New entrypoint
+RUN rm /ros_entrypoint.sh
 COPY thomas_entrypoint.sh /
 ENTRYPOINT ["/thomas_entrypoint.sh"]
 

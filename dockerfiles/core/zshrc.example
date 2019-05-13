@@ -85,7 +85,11 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 source /opt/ros/${ROS_DISTRO}/setup.zsh
-source /opt/thomas/setup.sh
+for ws in $(ls /opt/thomas); do
+  if [ -f /opt/thomas/${ws}/setup.sh ]; then
+    source /opt/thomas/${ws}/setup.sh --extend
+  fi
+done
 
 if [ -f ~/catkin_ws/install/setup.sh ]; then
   source ~/catkin_ws/install/setup.sh
