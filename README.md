@@ -1,4 +1,6 @@
-# Scripts and configuration files to build & run dockers for robots in the lab
+## Introduction
+
+Scripts and configuration files to build & run dockers for robots in the lab
 
 ## Quick start
 
