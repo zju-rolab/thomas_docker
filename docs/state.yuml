@@ -1,0 +1,14 @@
+// {type:state}
+// {direction:topDown}
+// {generate:true}
+
+// [note: You can stick notes on diagrams too!{bg:cornsilk}]
+
+(Initial)[start.sh]->(Running)
+(Running)[pause.sh]->(Paused)
+(Paused)[unpause.sh]->(Running)
+(Running)[stop.sh]->(Stopped)
+(Stopped)[start.sh]->(Running)
+(Stopped)[remove.sh]->(Initial)
+(Paused)[remove.sh]->(Initial)
+(Running)[remove.sh]->(Initial)
