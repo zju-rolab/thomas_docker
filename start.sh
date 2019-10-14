@@ -83,7 +83,8 @@ if [ $(uname) = 'Linux' ]; then
   NET_CONF="${NET_CONF} --net host"
 elif [ $(uname) = 'Darwin' ]; then
   DISPLAY_CONF="${DISPLAY_CONF} -e DISPLAY=host.docker.internal:0 -e LIBGL_ALWAYS_SOFTWARE=1"
-  NET_CONF="${NET_CONF} -p 11311:11311"
+  # NET_CONF="${NET_CONF} --net=host"
+  NET_CONF="${NET_CONF} -p 11311:11311 -p 5901:5901"
 fi
 
 if [ -n "$(docker container ls -a -f "name=${CONTAINER_NAME}" -f "status=exited" --format {{.ID}})" ]; then
@@ -99,5 +100,5 @@ else
                     ${MOUNTS} \
                     -w ${DOCKER_HOME} \
                     ${IMAGE_NAME} \
-                    /bin/zsh -c 'source /opt/ros/${ROS_DISTRO}/setup.zsh && roscore' > /dev/null
+                    /bin/bash -c 'source /opt/ros/${ROS_DISTRO}/setup.bash && roscore' > /dev/null
 fi

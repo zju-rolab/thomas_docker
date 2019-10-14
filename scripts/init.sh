@@ -42,3 +42,6 @@ if [ -n "${DOCKER_USER}" ] && [ -n "${DOCKER_GRP}" ]; then
   chown -R ${DOCKER_USER}:${DOCKER_GRP} /home/${DOCKER_USER}
 
 fi
+
+cp /thomas/scripts/spv_vnc.conf /etc/supervisor/conf.d/
+# supervisord -c /etc/supervisor/supervisord.conf

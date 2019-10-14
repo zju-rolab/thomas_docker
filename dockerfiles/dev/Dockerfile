@@ -7,7 +7,7 @@ ARG THOMAS_WS=/root/thomas_ws
 RUN apt-get update
 
 # Install ros packages
-RUN apt-get install -y \
+RUN apt-get install -y --allow-unauthenticated \
     ros-${ROS_DISTRO}-move-base \
     ros-${ROS_DISTRO}-gps-common \
     ros-${ROS_DISTRO}-tf2-eigen \
@@ -33,7 +33,7 @@ RUN cd /tmp && git clone http://github.com/ethz-asl/libnabo.git && \
     mkdir build && \
     cd build && \
     cmake .. && \
-    make -j && \
+    make -j4 && \
     make install && \
     rm -rf /tmp/libnabo && \
     cd /tmp && git clone http://github.com/ethz-asl/libpointmatcher.git && \
@@ -42,7 +42,7 @@ RUN cd /tmp && git clone http://github.com/ethz-asl/libnabo.git && \
     mkdir build && \
     cd build && \
     cmake .. && \
-    make -j && \
+    make -j4 && \
     make install && \
     rm -rf /tmp/libpointmatcher && \
     cd /tmp && git clone http://github.com/RainerKuemmerle/g2o.git && \
@@ -51,7 +51,7 @@ RUN cd /tmp && git clone http://github.com/ethz-asl/libnabo.git && \
     mkdir build && \
     cd build && \
     cmake -DG2O_BUILD_APPS=OFF -DG2O_BUILD_EXAMPLES=OFF .. && \
-    make -j && \
+    make -j4 && \
     make install && \
     rm -rf /tmp/g2o && \
     cd /tmp && git clone http://github.com/libgit2/libgit2.git && \
@@ -60,7 +60,7 @@ RUN cd /tmp && git clone http://github.com/ethz-asl/libnabo.git && \
     mkdir build && \
     cd build && \
     cmake .. && \
-    make -j && \
+    make -j4 && \
     make install && \
     rm -rf /tmp/libgit2 && \
     . /opt/ros/${ROS_DISTRO}/setup.sh && \
