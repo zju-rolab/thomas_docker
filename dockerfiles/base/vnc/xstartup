@@ -1,0 +1,9 @@
+#!/bin/sh
+xrdb $HOME/.Xresources
+xsetroot -solid grey
+export XKL_XMODMAP_DISABLE=1
+openbox &
+/usr/bin/lxsession -s LXDE &
+
+# /etc/X11/Xsession
+# lxterminal &
