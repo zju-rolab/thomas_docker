@@ -35,7 +35,9 @@ RUN apt-get install -y --allow-unauthenticated \
     libglademm-2.4-dev \
     libgtkglextmm-x11-1.2-dev \
     libusb-1.0-0 \
-    ros-${ROS_DISTRO}-gps-common
+    ros-${ROS_DISTRO}-gps-common \
+    ros-kinetic-image-exposure-msgs \
+    ros-kinetic-wfov-camera-msgs
 
 # Install useful tools
 RUN apt-get install -y \
@@ -74,9 +76,9 @@ RUN cd /tmp && \
     tar -xzf ${FLYCAPTURE_SDK_FILE} && \
     mkdir -p /etc/udev/rules.d && \
     cd /tmp/spinnaker* && \
-    echo "y\ny\nroot\ny\ny\nn\ny" | ./install_spinnaker.sh && \
+    echo "y\ny\nroot\ny\ny\nn\n" | ./install_spinnaker.sh && \
     cd /tmp/flycapture* && \
-    echo "y\ny\nroot\ny\ny\nn\ny" | ./install_flycapture.sh && \
+    echo "y\ny\nroot\ny\ny\nn\n" | ./install_flycapture.sh && \
     rm -rf /tmp/spinnaker* && rm -rf /tmp/flycapture*
 # VNC
 # COPY spv_vnc.conf /tmp
