@@ -5,7 +5,7 @@ ROS_DISTRO=kinetic
 if [  "$2" == "--aliyun" ]; then
   registry="registry.cn-hangzhou.aliyuncs.com/thomas_robot"
 else
-  registry="reg.tangli.site:8843/thomas"
+  registry="reg.tangli.site:8180/thomas"
 fi
 
 IMAGE_FULLNAME=thomas:ros-${ROS_DISTRO}-thomas-$1

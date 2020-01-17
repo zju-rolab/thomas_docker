@@ -1,16 +1,23 @@
 #!/bin/bash
 
+set -x
+
 ROS_DISTRO=kinetic
 BUILD_ARGS="--network host"
 BASE_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
 function do_build() {
-  docker build ${BUILD_ARGS} -t thomas:ros-${ROS_DISTRO}-thomas-$1 --build-arg ROS_DISTRO=${ROS_DISTRO} $2
+  if [ "$3" == "--force" ]; then
+    ARGS="--no-cache"
+  else
+    ARGS=""
+  fi
+  docker build ${BUILD_ARGS} ${ARGS} -t thomas:ros-${ROS_DISTRO}-thomas-$1 --build-arg ROS_DISTRO=${ROS_DISTRO} $2
   return $?
 }
 
 function build_with_nv() {
-  do_build $1 $1
+  do_build $1 $1 $2
   if [ $? -ne 0 ]; then
     echo "Fail to build. Do not build nv docker"
     return
@@ -36,5 +43,12 @@ if [ $# -eq 0 ]; then
     fi
   done
 else
-  build_with_nv $1
+  if [ $# -eq 2 ] && [ "$2" == "-f" ]; then
+    build_with_nv $1 --force
+  else
+    build_with_nv $1 --no-force
+  fi
 fi
+
+set +x 
+
