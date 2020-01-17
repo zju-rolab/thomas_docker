@@ -35,7 +35,7 @@ pipeline {
                         script {
                             build_badge.setStatus('building')
                             try {
-                                sh 'cd dockerfiles && ./build.sh'
+                                sh 'cd dockerfiles && ./build.sh core -f && ./build.sh dev'
                                 build_badge.setStatus('passing')
                             } catch (Exception err) {
                                 build_badge.setStatus('failing')
