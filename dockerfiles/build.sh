@@ -39,7 +39,7 @@ if [ $# -eq 0 ]; then
   image=$(echo ${image} | rev | cut -d'/' -f2 | rev)
   echo $image
     if [ -f "${BASE_DIR}/${image}/Dockerfile" ]; then
-    build_with_nv ${image}
+    build_with_nv ${image} --no-force
     fi
   done
 else
